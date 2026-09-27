@@ -1,0 +1,192 @@
+1. First Gate
+Concept: Simple introduction to gate movement.
+
+Small starting enclosure
+One narrow gate
+Open field after the gate
+Pasture directly beyond it
+Mostly green sheep
+One orange separator
+Tests:
+
+Dog positioning
+Gate following
+Keeping the flock together
+Basic pressure control
+2. Split Flock
+Concept: Start with two separate flocks that must be merged.
+
+Two flock spawn points
+One pasture
+No fences in the starting area
+A few rocks between the groups
+Mostly green and yellow sheep
+Tests:
+
+Multiple flock starts
+Flock merging
+Movement alignment
+Nervousness control
+3. Nervous Gatekeeper
+Concept: An orange or red separator is placed near the flock.
+
+One orange sheep
+Several green sheep
+Small enclosed pasture
+One narrow gate
+The dog must avoid making the separator too nervous too early
+Tests:
+
+Separator behavior
+Nervousness spreading
+Green sheep following a nervous separator
+Preventing a small subgroup from breaking away
+
+4. Mother and Lamb Yard
+Concept: Move blue mothers and light-blue lambs through a controlled route.
+
+Two blue mothers
+Two light-blue lambs per mother
+A few green sheep
+One large enclosure
+One gate on the far side
+Rocks near the edges
+Tests:
+
+Permanent mother/lamb links
+Lamb tether strength
+Mother movement
+Family nervousness sharing
+5. Narrow Corridor
+Concept: Move the flock through a long narrow passage.
+
+Two long parallel fences
+One opening at the far end
+Pasture beyond the corridor
+No large open escape areas
+Mostly green sheep with two yellow sheep
+Tests:
+
+Dog pressure positioning
+Edge buffering
+Sheep collision behavior
+Preventing sheep from getting stuck or turning around
+
+6. Corner Pasture
+Concept: Pasture occupies a corner, forcing the player to approach from the correct side.
+
+Large open field
+Pasture in the top-right corner
+Fence along two pasture sides
+Gate near one corner
+Rocks blocking the direct center route
+Tests:
+
+Gate direction
+Dog positioning around corners
+Sheep obstacle steering
+Holding the flock in the pasture
+
+7. Three Small Pens
+Concept: Several small areas connected by gates.
+
+Starting pen on the left
+Middle pen with two rocks
+Pasture pen on the right
+One gate between each pen
+Gates placed at opposite corners
+Tests:
+
+Gate propagation
+Flock following the first sheep
+Moving through multiple transitions
+Managing sheep that stop at gate entrances
+
+8. Separator Escape
+Concept: One red sheep must be managed without losing the main flock.
+
+One red sheep
+Several green sheep
+One blue mother and one lamb
+Open field
+Pasture on the opposite side
+No fences except the pasture
+Tests:
+
+Red separator breakaway
+Nervousness spread
+Greens being pulled into a subgroup
+Mother/lamb cohesion under pressure
+
+9. Obstacle Maze
+Concept: Use rocks to create several possible routes.
+
+Large open field
+8–12 rock obstacles
+Pasture behind the obstacle field
+No fences before the pasture
+One gate into the pasture
+Tests:
+
+Obstacle steering
+Flock movement alignment
+Preventing sheep from splitting around obstacles
+Choosing where to apply pressure
+
+10. Calm Before the Storm
+Concept: A large calm flock with a few sensitive sheep.
+
+30 green sheep
+5 yellow sheep
+2 orange sheep
+1 red sheep
+2 blue mothers
+2 light-blue lambs
+Large open field
+Large pasture with a wide gate
+Tests:
+
+Mixed flock behavior
+Nervousness spreading
+Family grouping
+Separator behavior
+Broad flock movement
+
+11. Timed Sprint
+Concept: A compact level designed around speed.
+
+Small open field
+Short distance to pasture
+One gate
+Mostly green sheep
+Timer set relatively low
+Tests:
+
+Fast dog movement
+Efficient pressure
+Star rating
+Whether the timer feels fair
+
+12. Recovery Field
+Concept: Sheep start close to the pasture but in a difficult arrangement.
+
+Flock starts in three small groups
+Pasture nearby
+One red sheep in an outer group
+One blue mother separated from its lamb
+Several rocks between groups
+Tests:
+
+Multiple flock starts
+Family recovery
+Reuniting groups
+Short-distance herding
+Strong First Five
+For the next testing pass, I’d build these first:
+
+First Gate
+Mother and Lamb Yard
+Nervous Gatekeeper
+Narrow Corridor
+Separator Escape
+They exercise the most important systems without requiring huge or overly complicated layouts.

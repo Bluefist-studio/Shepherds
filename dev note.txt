@@ -1,0 +1,734 @@
+# Sheep Herding Game — Prototype V0.1
+
+## Overview
+
+Create a playable prototype of a 2D top-down sheep-herding game using:
+
+* HTML5
+* CSS
+* Vanilla JavaScript
+* HTML5 Canvas
+* No external game engine
+* No external libraries unless absolutely necessary
+
+The project will be developed in Visual Studio.
+
+The player controls a sheepdog and must use the dog's movement, positioning, and barking to influence a flock of autonomous sheep and bring the entire flock into a designated target zone.
+
+The game is intentionally abstract at this stage. The dog and sheep should be represented as simple colored shapes/blobs. Do not spend time creating detailed art or animations.
+
+The priority is making the **herding simulation and controls feel good**.
+
+---
+
+# 1. Core Gameplay
+
+The player controls one sheepdog.
+
+A level contains:
+
+* A playable environment
+* Obstacles
+* A flock of sheep
+* A target zone
+
+The objective is:
+
+> Get the entire flock into the target zone.
+
+The level is completed when all required sheep are inside the target zone.
+
+The sheep must remain autonomous. The player does NOT directly control individual sheep.
+
+The player controls only the dog.
+
+The fundamental gameplay loop should be:
+
+1. Position the dog.
+2. Apply pressure to the sheep through proximity and barking.
+3. Sheep react according to their individual behavior.
+4. Reposition the dog.
+5. Gather and direct the flock.
+6. Bring the flock into the target zone.
+
+---
+
+# 2. Visual Style
+
+Use a simple abstract visual style.
+
+### Dog
+
+Represent the dog as a clearly identifiable blob/circle.
+
+The dog should have an indication of its facing/movement direction.
+
+### Sheep
+
+Represent sheep as simple circles/blobs.
+
+Use colors to represent their behavioral types:
+
+* Green = normal
+* Yellow = nervous
+* Orange = independent
+* Red = nervous + independent
+
+The colors are primarily a development/debugging tool at this stage.
+
+### Environment
+
+Use simple geometric shapes for:
+
+* Grass/background
+* Fences
+* Walls
+* Obstacles
+* Target zone
+
+Do not create detailed artwork.
+
+---
+
+# 3. Dog Controls
+
+Use WASD for dog movement.
+
+* W = move up
+* S = move down
+* A = move left
+* D = move right
+
+Movement must use acceleration and deceleration rather than instantly reaching maximum speed.
+
+### Movement modes
+
+**Jog**
+
+* Default movement speed.
+
+**Walk**
+
+* Hold C or Ctrl.
+* Dog moves at walking speed.
+
+**Sprint**
+
+* Hold Shift.
+* Dog moves at sprint speed.
+* Sprint consumes stamina.
+
+The movement system should feel smooth and responsive.
+
+Do not use instant velocity changes.
+
+---
+
+# 4. Dog Stats
+
+Create a centralized configuration system so these values can easily be modified without searching through the code.
+
+Initial dog properties:
+
+### Movement
+
+* walkSpeed
+* jogSpeed
+* sprintSpeed
+* acceleration
+* deceleration
+* turnRate/agility
+
+The exact initial values should be chosen to make the prototype playable, but all values must be easily adjustable.
+
+### Stamina
+
+* maxStamina
+* sprintStaminaDrain
+* staminaRecoveryRate
+
+Stamina decreases while sprinting.
+
+Stamina recovers while walking, jogging, or standing still.
+
+The bark also consumes stamina.
+
+Do not create a separate bark cooldown system at this stage.
+
+### Presence
+
+The dog has a `presenceStrength` stat.
+
+The dog's physical proximity to sheep creates pressure.
+
+Presence should be stronger when the dog is closer to a sheep and weaker when farther away.
+
+The exact mathematical falloff should be implemented as a configurable system.
+
+### Bark
+
+The dog has:
+
+* barkStrength
+* barkRange
+* barkStaminaCost
+
+When the player activates the bark, sheep within the bark range receive a burst of pressure.
+
+The bark should increase sheep nervousness and influence their movement.
+
+The bark consumes stamina.
+
+Use a simple key for barking, such as Space.
+
+Make the bark visually obvious during development with a temporary expanding circle/ring around the dog.
+
+---
+
+# 5. Camera
+
+Use a top-down camera.
+
+The camera should NOT simply remain centered on the dog.
+
+Instead:
+
+> The mouse controls where the player looks.
+
+The desired camera position should move toward the mouse cursor.
+
+However, the camera must remain within a maximum radius around the dog.
+
+Conceptually:
+
+```text
+             Camera
+                *
+              / |
+             /  |
+            /   |
+           /    |
+        🐕 Dog
+```
+
+The camera can look ahead of the dog, but cannot move beyond the configured maximum radius from the dog.
+
+Create configurable values for:
+
+* cameraLookRadius
+* cameraSmoothing
+* mouseSensitivity
+
+Use smooth camera movement.
+
+The dog should therefore be able to move independently of where the player is looking.
+
+---
+
+# 6. Sheep Simulation
+
+Each sheep is an autonomous entity.
+
+The player does not directly issue movement commands to sheep.
+
+Sheep movement should emerge from several behavioral forces.
+
+At minimum, sheep should consider:
+
+1. Dog avoidance
+2. Flock attraction
+3. Sheep-to-sheep separation
+4. Social preferences
+5. Grazing/wandering
+6. Obstacles
+7. Nervousness
+
+These forces should be combined to determine the sheep's desired movement.
+
+Do not hard-code individual scripted movements.
+
+---
+
+# 7. Sheep Nervousness
+
+Every sheep has a continuously changing nervousness value.
+
+Use a normalized range such as:
+
+```text
+0.0 = completely calm
+1.0 = extremely nervous
+```
+
+Nervousness should:
+
+* Increase from dog presence.
+* Increase from barking.
+* Recover when the dog is no longer applying significant pressure.
+
+Nervousness must be a dynamic state, not a permanent sheep property.
+
+Create configurable values for:
+
+* nervousnessGain
+* nervousnessRecovery
+* nervousnessMovementMultiplier
+* breakawayThreshold
+
+Higher nervousness should cause:
+
+* Faster movement.
+* Stronger flight response.
+* Greater tendency to break away from the flock.
+
+Do not make nervousness immediately snap between states. It should change continuously.
+
+---
+
+# 8. Sheep Types
+
+Implement four sheep archetypes.
+
+## Green Sheep — Normal
+
+Green sheep are the baseline sheep.
+
+Behavior:
+
+* Strong tendency to stay with the flock.
+* Normal nervousness gain.
+* Normal movement speed.
+* Naturally wander/spread slightly while grazing.
+* Do not remain perfectly stationary.
+* When not being influenced by the dog, the flock should slowly spread and change shape.
+* Can break away when sufficiently pressured.
+
+Green sheep should be the easiest sheep to herd.
+
+---
+
+## Yellow Sheep — Nervous
+
+Yellow sheep are more sensitive.
+
+Behavior:
+
+* Gain nervousness more quickly.
+* Become nervous from less dog pressure.
+* Move faster when nervous.
+* More likely to break away from the flock.
+* Should be more difficult to control once highly nervous.
+* Should recover nervousness more slowly than green sheep if appropriate.
+
+Yellow sheep should create situations where the player needs to be careful about approaching too aggressively.
+
+---
+
+## Orange Sheep — Independent
+
+Orange sheep have different social behavior rather than simply being "more nervous."
+
+Orange sheep:
+
+* Still want to remain associated with the flock.
+* Do NOT want to stay close to other orange or red sheep.
+* Do not inherently avoid green or yellow sheep.
+* Should naturally distribute themselves among the other sheep.
+* Have normal nervousness unless otherwise affected.
+
+Important:
+
+Orange sheep should NOT have a large generic personal-space radius around every sheep.
+
+Their special avoidance applies specifically to:
+
+* Orange sheep
+* Red sheep
+
+They can comfortably stay close to green and yellow sheep.
+
+---
+
+## Red Sheep — Nervous + Independent
+
+Red sheep combine the yellow and orange behaviors.
+
+They:
+
+* Gain nervousness quickly.
+* Move faster when nervous.
+* Are more likely to break away.
+* Want to remain associated with the flock.
+* Avoid being too close to orange and red sheep.
+* Do not inherently avoid green or yellow sheep.
+
+Red sheep should be among the most difficult sheep to manage.
+
+---
+
+# 9. Sheep Social Behavior
+
+The sheep should not simply form one rigid ball.
+
+The flock should constantly change shape.
+
+There should be a balance between:
+
+### Flock attraction
+
+Sheep want to remain near the flock.
+
+### Separation
+
+Sheep avoid physically overlapping or occupying the exact same space.
+
+### Social avoidance
+
+Orange and red sheep specifically avoid being close to other orange/red sheep.
+
+### Grazing
+
+When there is little or no dog pressure, sheep should wander slightly and spread out.
+
+This should create a natural "breathing" flock.
+
+The flock should look alive even when the player is doing nothing.
+
+---
+
+# 10. Sheep Physical Interaction
+
+Sheep should have mass.
+
+Sheep can push against one another.
+
+Avoid implementing sheep as ghosts that simply pass through each other.
+
+At minimum, implement circle-based collision/repulsion so sheep cannot occupy the same physical space.
+
+Mass should influence how strongly sheep push one another.
+
+Keep this system simple for the first prototype.
+
+Do not attempt a fully realistic physics simulation.
+
+---
+
+# 11. Dog Influence
+
+The dog should influence sheep primarily through physical positioning.
+
+Basic behavior:
+
+> Dog approaches sheep → sheep move away from dog.
+
+The closer the dog is, the stronger the pressure should generally be.
+
+Dog presence should not simply teleport or directly command sheep movement.
+
+Instead, it should contribute a force/desired movement direction.
+
+The sheep's other behaviors should interact with this pressure.
+
+For example:
+
+* Dog pressure pushes sheep away.
+* Flock attraction pulls sheep toward other sheep.
+* Social avoidance separates orange/red sheep.
+* Grazing creates small wandering movement.
+* Nervousness modifies the strength and speed of their response.
+
+The resulting movement should emerge from the combination of these behaviors.
+
+---
+
+# 12. Bark
+
+When the player presses Space:
+
+* The dog barks.
+* A visual bark indicator appears.
+* Sheep inside the bark range receive additional pressure.
+* Their nervousness increases.
+* Their movement response becomes stronger.
+* Stamina is consumed.
+
+The bark should not directly tell sheep which direction to move.
+
+It should simply apply additional pressure from the dog's location.
+
+Barking should therefore be useful for getting sheep moving but potentially dangerous if overused.
+
+---
+
+# 13. Obstacles
+
+Create basic static obstacles.
+
+For the first prototype, use simple rectangles and/or polygons.
+
+Sheep and dog should not be able to move through solid obstacles.
+
+Sheep should react to obstacles rather than becoming permanently stuck whenever possible.
+
+Include at least:
+
+* Open field
+* One fence/wall
+* One narrow passage or gate-like opening
+
+Obstacles are important because the goal is eventually to create levels where the player must figure out how to position the dog around environmental constraints.
+
+---
+
+# 14. Target Zone
+
+Create a clearly visible target zone.
+
+The target zone should be larger than an individual sheep.
+
+The level completes when all required sheep are inside the target zone simultaneously.
+
+Display a simple success message when the level is completed.
+
+---
+
+# 15. Initial Prototype Level
+
+Create one test level.
+
+The level should contain:
+
+* One dog
+* Approximately 15–20 sheep
+* A mixture of green, yellow, orange, and red sheep
+* An open field
+* A few obstacles
+* A target zone positioned away from the starting flock
+
+Use a deliberately mixed flock so all four sheep behaviors can be tested.
+
+The initial flock composition should be configurable.
+
+---
+
+# 16. Debugging / Development UI
+
+Because this is a prototype, include a simple debug overlay.
+
+Display:
+
+* Dog speed
+* Current stamina
+* Maximum stamina
+* Number of sheep
+* Number of sheep currently in target zone
+* Average flock nervousness
+
+Optionally allow debug visualization of:
+
+* Dog presence radius
+* Bark radius
+* Sheep nervousness
+* Sheep desired movement direction
+* Flock center
+
+The debug UI should make it easy to understand why the sheep are behaving a certain way.
+
+---
+
+# 17. Code Architecture
+
+Keep the code modular.
+
+Do not create one enormous JavaScript file containing the entire game.
+
+Separate major systems where practical.
+
+Suggested structure:
+
+```text
+sheep-herding/
+│
+├── index.html
+├── css/
+│   └── style.css
+│
+├── js/
+│   ├── main.js
+│   ├── game.js
+│   ├── dog.js
+│   ├── sheep.js
+│   ├── flock.js
+│   ├── camera.js
+│   ├── input.js
+│   ├── level.js
+│   ├── physics.js
+│   └── config.js
+│
+└── assets/
+```
+
+Do not create unnecessary complexity just for the sake of having many files.
+
+The important requirement is that systems remain logically separated.
+
+---
+
+# 18. Configuration
+
+All important gameplay parameters must be centralized and easily adjustable.
+
+Do not bury important numbers throughout the code.
+
+The prototype should allow easy adjustment of:
+
+* Dog movement speeds
+* Acceleration
+* Deceleration
+* Turn rate
+* Stamina
+* Stamina drain
+* Stamina recovery
+* Presence strength
+* Bark strength
+* Bark range
+* Bark stamina cost
+* Sheep movement speed
+* Sheep mass
+* Flock attraction
+* Separation strength
+* Social avoidance
+* Nervousness gain
+* Nervousness recovery
+* Nervousness movement effect
+* Breakaway threshold
+* Camera radius
+* Camera smoothing
+
+---
+
+# 19. Performance
+
+The game may eventually contain significantly larger flocks.
+
+Build the sheep simulation with reasonable performance in mind.
+
+Avoid unnecessarily expensive calculations.
+
+For the initial prototype, approximately 15–20 sheep is sufficient, but the architecture should not assume that the game will always have only 20 sheep.
+
+Do not prematurely optimize at the expense of readable code.
+
+---
+
+# 20. Future Systems — DO NOT IMPLEMENT YET
+
+Design the architecture so these could be added later, but do not implement them in this prototype:
+
+* Dog leveling
+* Dog experience
+* Money
+* Purchasing dogs
+* Different dog breeds
+* Dog training
+* Dog food
+* Dog accessories
+* Multiple dogs
+* Campaign progression
+* Advanced missions
+* Detailed dog animations
+* Detailed sheep models
+* Sound system
+* Multiplayer
+
+The current goal is purely to establish whether the **core sheep-herding simulation is fun**.
+
+---
+
+# 21. Development Priority
+
+Build the game in this order:
+
+### Phase 1
+
+Create Canvas, game loop, input, dog movement, and camera.
+
+### Phase 2
+
+Add basic sheep entities and movement.
+
+### Phase 3
+
+Add flock attraction, separation, and grazing behavior.
+
+### Phase 4
+
+Add dog presence and sheep avoidance.
+
+### Phase 5
+
+Add nervousness.
+
+### Phase 6
+
+Add the four sheep archetypes.
+
+### Phase 7
+
+Add barking and stamina interaction.
+
+### Phase 8
+
+Add obstacles and collision.
+
+### Phase 9
+
+Add target zone and level completion.
+
+### Phase 10
+
+Add debugging tools and tune the simulation.
+
+At every phase, keep the game playable.
+
+Do not attempt to implement the entire game at once and then debug everything simultaneously.
+
+---
+
+# 22. Most Important Design Principle
+
+The game should feel like the player is **herding animals**, not controlling units.
+
+The player should need to learn:
+
+* Where to position the dog.
+* How close to approach.
+* When to back off.
+* When to sprint around the flock.
+* When to bark.
+* How to handle nervous sheep.
+* How to prevent sheep from breaking away.
+* How to use obstacles and terrain.
+
+The sheep should behave autonomously enough that the player must respond to them rather than simply issuing commands.
+
+Prioritize **emergent flock behavior and satisfying dog/sheep interaction** over graphics, menus, progression, or polish.
+
+---
+
+## Deliverable
+
+Create the complete runnable prototype in the project directory.
+
+It must be possible to open/run the game locally and immediately play the test level.
+
+After implementation, provide a concise explanation of:
+
+1. How to run the game.
+2. The file structure.
+3. The major simulation systems.
+4. The main configuration values that can be tuned.
+5. Any known limitations or behaviors that should be tuned in the next iteration.
+
+Do not add features that are not requested above simply to make the project appear more complete.

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sheep Herding // Field Test</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="game-shell">
+    <canvas id="gameCanvas" aria-label="Sheep herding game"></canvas>
+    <section class="hud hud-title">
+      <p class="eyebrow">FIELD TEST // 01</p>
+      <h1>Shepherd's Run</h1>
+      <p class="objective">Guide the whole flock into the marked pasture.</p>
+    </section>
+    <section class="hud hud-stats" aria-live="polite">
+      <div class="stat-row"><span>Flock in pasture</span><strong id="flockCount">0 / 18</strong></div>
+      <div class="stat-row"><span>Time remaining</span><strong id="timerValue">10:00</strong></div>
+      <div class="stat-row"><span>Average nerves</span><strong id="nervesValue">0%</strong></div>
+      <div class="stat-row"><span>Dog speed</span><strong id="speedValue">0</strong></div>
+      <div class="stamina-meter"><span id="staminaFill"></span></div>
+      <div class="stat-row stat-caption"><span>Stamina</span><strong id="staminaValue">100 / 100</strong></div>
+    </section>
+    <div id="completionCountdown" class="completion-countdown" hidden><strong>PASTURE HOLD</strong><span id="completionCountdownText"></span><i><b></b></i></div>
+    <section id="practiceTools" class="hud practice-tools" hidden>
+      <p class="eyebrow">PRACTICE TOOLS</p>
+      <p class="practice-caption">Flock composition</p>
+      <label>Green<input id="practiceCount-green" type="number" min="0" max="50" value="20"></label>
+      <label>Yellow<input id="practiceCount-yellow" type="number" min="0" max="50" value="0"></label>
+      <label>Orange<input id="practiceCount-orange" type="number" min="0" max="50" value="0"></label>
+      <label>Red<input id="practiceCount-red" type="number" min="0" max="50" value="0"></label>
+      <label>Light blue<input id="practiceCount-lightBlue" type="number" min="0" max="50" value="0"></label>
+      <label>Blue<input id="practiceCount-blue" type="number" min="0" max="50" value="0"></label>
+      <button type="button" id="respawnPracticeFlock">Respawn flock</button>
+      <div class="practice-tips" aria-live="polite">
+        <div class="practice-tip-heading"><span>FIELD NOTES</span><strong id="practiceTipProgress">1 / 16</strong></div>
+        <h3 id="practiceTipTitle"></h3>
+        <p id="practiceTipText"></p>
+        <div class="practice-tip-actions"><button type="button" id="practiceTipPrevious" aria-label="Previous field note">Back</button><button type="button" id="practiceTipNext">Next tip</button></div>
+      </div>
+    </section>
+    <section class="hud hud-controls">
+      <span><b>WASD</b> move</span><span><b>SHIFT</b> sprint</span><span><b>C</b> walk</span><span><b>SPACE</b> bark</span><span><b>R</b> reset</span>
+    </section>
+    <section id="levelMenu" class="level-menu" aria-label="Level selection">
+      <p class="eyebrow">FIELD SELECT</p>
+      <h2>Choose a field</h2>
+      <div id="totalStars" class="total-stars" aria-label="Collected stars"><strong>★</strong><span>0 / 0</span></div>
+      <div id="levelOptions" class="level-options"></div>
+    </section>
+    <section id="editorPanel" class="editor-panel" hidden>
+      <div class="editor-toolbar">
+        <div><p class="eyebrow">LEVEL EDITOR</p><h2>Draw your field</h2></div>
+        <button type="button" id="editorClose" class="editor-close">Close</button>
+      </div>
+      <div class="editor-layout">
+        <div class="editor-canvas-wrap"><canvas id="editorCanvas" aria-label="Level editor canvas"></canvas></div>
+        <aside class="editor-sidebar">
+          <label>Title<input id="editorTitle" value="CUSTOM FIELD"></label>
+          <label>Description<textarea id="editorDescription" rows="3">My level</textarea></label>
+          <label>Time limit<input id="editorTime" type="number" value="600" min="0"></label>
+          <div class="editor-zoom"><button type="button" id="editorZoomOut">-</button><span id="editorZoomLabel">100%</span><button type="button" id="editorZoomIn">+</button></div>
+          <div class="editor-tool-grid">
+            <button type="button" data-editor-tool="fence">Fence</button><button type="button" data-editor-tool="rock">Rock</button><button type="button" data-editor-tool="building">Building</button>
+            <button type="button" data-editor-tool="water">Water</button><button type="button" data-editor-tool="bush">Bush</button>
+            <button type="button" data-editor-tool="gate">Gate</button><button type="button" data-editor-tool="pasture">Pasture</button>
+            <button type="button" data-editor-tool="flock">Add flock</button><button type="button" data-editor-tool="player">Player spawn</button><button type="button" data-editor-tool="erase">Erase</button>
+          </div>
+          <div class="editor-counts">
+            <p class="editor-label">Flock counts</p>
+            <label>Green<input id="editorCount-green" type="number" value="20" min="0"></label>
+            <label>Yellow<input id="editorCount-yellow" type="number" value="0" min="0"></label>
+            <label>Orange<input id="editorCount-orange" type="number" value="0" min="0"></label>
+            <label>Red<input id="editorCount-red" type="number" value="0" min="0"></label>
+            <label>Light blue<input id="editorCount-lightBlue" type="number" value="0" min="0"></label>
+            <label>Blue<input id="editorCount-blue" type="number" value="0" min="0"></label>
+          </div>
+          <div class="editor-actions"><button type="button" id="editorClear">Clear shapes</button><button type="button" id="editorExport">Generate compact code</button><button type="button" id="editorExportJs">Copy JS entry</button><button type="button" id="editorImport">Load code</button><button type="button" id="editorTest">Test level</button><button type="button" id="editorLoad">Add to menu</button></div>
+          <textarea id="editorCode" spellcheck="false" placeholder="Generated level JSON appears here..."></textarea>
+          <p id="editorStatus" class="editor-status">Choose a tool, then drag on the field.</p>
+        </aside>
+      </div>
+    </section>
+    <section id="success" class="success-panel" hidden>
+      <p class="eyebrow">FIELD COMPLETE</p>
+      <h2>Every sheep is home.</h2>
+      <div id="levelRating" class="level-rating" aria-label="Level rating"></div>
+      <p>Press R to run the field again.</p>
+      <button type="button" id="levelSelectButton">Back to level select</button>
+    </section>
+    <section id="failure" class="success-panel failure-panel" hidden>
+      <p class="eyebrow">FIELD FAILED</p>
+      <h2>Time ran out.</h2>
+      <p>The flock was not secured in time.</p>
+      <button type="button" id="retryLevel">Retry level</button>
+      <button type="button" id="failureLevelSelect">Return to selection</button>
+    </section>
+    <section id="escapePrompt" class="escape-prompt" hidden role="dialog" aria-modal="true" aria-labelledby="escapeTitle">
+      <p class="eyebrow">PAUSE</p>
+      <h2 id="escapeTitle">Return to level selection?</h2>
+      <p>Your current run will be reset.</p>
+      <div class="prompt-actions"><button type="button" id="confirmLevelSelect">Return to selection</button><button type="button" id="cancelLevelSelect">Keep playing</button></div>
+    </section>
+    <section id="deletePrompt" class="escape-prompt delete-prompt" hidden role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+      <p class="eyebrow">DELETE LEVEL</p>
+      <h2 id="deleteTitle">Delete custom level?</h2>
+      <p id="deleteMessage">This level will be removed from the selection menu.</p>
+      <div class="prompt-actions"><button type="button" id="confirmLevelDelete">Delete level</button><button type="button" id="cancelLevelDelete">Keep level</button></div>
+    </section>
+    <section id="levelNotice" class="escape-prompt level-notice" hidden role="dialog" aria-modal="true" aria-labelledby="levelNoticeTitle">
+      <p class="eyebrow">LEVEL SAVED</p>
+      <h2 id="levelNoticeTitle">Level added</h2>
+      <p id="levelNoticeMessage">The level is now available in the selection menu.</p>
+      <div class="prompt-actions"><button type="button" id="closeLevelNotice">Continue editing</button></div>
+    </section>
+    <section id="flockCompositionModal" class="escape-prompt flock-modal" hidden role="dialog" aria-modal="true" aria-labelledby="flockModalTitle">
+      <p class="eyebrow">FLOCK COMPOSITION</p>
+      <h2 id="flockModalTitle">Set flock composition</h2>
+      <div class="editor-counts">
+        <label>Green<input id="flockModalCount-green" type="number" value="0" min="0"></label>
+        <label>Yellow<input id="flockModalCount-yellow" type="number" value="0" min="0"></label>
+        <label>Orange<input id="flockModalCount-orange" type="number" value="0" min="0"></label>
+        <label>Red<input id="flockModalCount-red" type="number" value="0" min="0"></label>
+        <label>Light blue<input id="flockModalCount-lightBlue" type="number" value="0" min="0"></label>
+        <label>Blue<input id="flockModalCount-blue" type="number" value="0" min="0"></label>
+      </div>
+      <p id="flockModalHint">Leave all values at 0 to use the level's shared flock counts instead.</p>
+      <div class="prompt-actions"><button type="button" id="flockModalSave">Save</button><button type="button" id="flockModalDelete">Delete flock</button><button type="button" id="flockModalCancel">Cancel</button></div>
+    </section>
+    <section id="runtimeError" class="runtime-error" hidden role="alert">
+      <p class="eyebrow">FIELD ERROR</p>
+      <h2>The prototype stopped.</h2>
+      <p id="runtimeErrorMessage"></p>
+      <button type="button" id="reloadGame">Reload game</button>
+    </section>
+  </main>
+  <script>
+    window.reportGameError = function (error) {
+      const panel = document.getElementById('runtimeError');
+      const message = document.getElementById('runtimeErrorMessage');
+      const detail = error && error.message ? error.message : String(error);
+      message.textContent = detail;
+      panel.hidden = false;
+      console.error(error);
+    };
+    window.addEventListener('error', (event) => window.reportGameError(event.error || event.message));
+    window.addEventListener('unhandledrejection', (event) => window.reportGameError(event.reason));
+    document.getElementById('reloadGame').addEventListener('click', () => window.location.reload());
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
